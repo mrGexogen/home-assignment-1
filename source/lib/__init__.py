@@ -87,16 +87,16 @@ def make_pycurl_request(url, timeout, useragent=None):
     prepared_url = to_str(prepare_url(url), 'ignore')
     buff = StringIO()
     curl = pycurl.Curl()
-    curl.setopt(curl.URL, prepared_url)
+    curl.setopt(pycurl.URL, prepared_url)
     if useragent:
-        curl.setopt(curl.USERAGENT, useragent)
-    curl.setopt(curl.WRITEDATA, buff)
-    curl.setopt(curl.FOLLOWLOCATION, False)
+        curl.setopt(pycurl.USERAGENT, useragent)
+    curl.setopt(pycurl.WRITEDATA, buff)
+    curl.setopt(pycurl.FOLLOWLOCATION, False)
     # curl.setopt(curl.CONNECTTIMEOUT, timeout)
-    curl.setopt(curl.TIMEOUT, timeout)
+    curl.setopt(pycurl.TIMEOUT, timeout)
     curl.perform()
     content = buff.getvalue()
-    redirect_url = curl.getinfo(curl.REDIRECT_URL)
+    redirect_url = curl.getinfo(pycurl.REDIRECT_URL)
     curl.close()
     if redirect_url is not None:
         redirect_url = to_unicode(redirect_url, 'ignore')
@@ -162,6 +162,9 @@ def get_redirect_history(url, timeout, max_redirects=30, user_agent=None):
 
     content = None
     while True:
+        if len(history_urls) > max_redirects or (redirect_url in history_urls[:-1]):
+            break
+
         redirect_url, redirect_type, content = get_url(
             url=redirect_url,
             timeout=timeout,
@@ -174,9 +177,6 @@ def get_redirect_history(url, timeout, max_redirects=30, user_agent=None):
         history_urls.append(redirect_url)
 
         if redirect_type == 'ERROR':
-            break
-
-        if len(history_urls) > max_redirects or (redirect_url in history_urls[:-1]):
             break
 
     counters = get_counters(content) if content else []
