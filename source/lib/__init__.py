@@ -31,11 +31,13 @@ COUNTER_TYPES = (
 
 
 def to_unicode(val, errors='strict'):
-    return val if isinstance(val, unicode) else val.decode('utf8', errors=errors)
+    if val is not None:
+        return val if isinstance(val, unicode) else val.decode('utf8', errors=errors)
 
 
 def to_str(val, errors='strict'):
-    return val.encode('utf8', errors=errors) if isinstance(val, unicode) else val
+    if val is not None:
+        return val.encode('utf8', errors=errors) if isinstance(val, unicode) else val
 
 
 def get_counters(content):
@@ -44,7 +46,7 @@ def get_counters(content):
     """
     counters = []
     for counter_name, regexp in COUNTER_TYPES:
-        if re.match(regexp, content):
+        if isinstance(content, (str, buffer)) and re.match(regexp, content):
             counters.append(counter_name)
     return counters
 
@@ -53,25 +55,27 @@ def check_for_meta(content, url):
     """
     Ищет в хтмл-странице мета-редирект теги и возраещет урл редиректа
     """
-    soup = BeautifulSoup(content, "html.parser")
-    result = soup.find("meta")
-    if result and 'content' in result.attrs:
-        for attr, value in result.attrs.items():
-            if attr == 'http-equiv' and value.lower() == 'refresh':
-                splitted = result['content'].split(";")
-                if len(splitted) != 2:
-                    return
-                wait, text = splitted
-                text = text.strip()
-                m = re.search(r"url\s*=\s*['\"]?([^'\"]+)", text, re.I)
-                if m:
-                    meta_url = m.groups()[0]
-                    return urljoin(url, to_unicode(meta_url, 'ignore'))
+    if content is not None and url is not None:
+        soup = BeautifulSoup(content, "html.parser")
+        result = soup.find("meta")
+        if result and 'content' in result.attrs:
+            for attr, value in result.attrs.items():
+                if attr == 'http-equiv' and value.lower() == 'refresh':
+                    splitted = result['content'].split(";")
+                    if len(splitted) != 2:
+                        return
+                    wait, text = splitted
+                    text = text.strip()
+                    m = re.search(r"url\s*=\s*['\"]?([^'\"]+)", text, re.I)
+                    if m:
+                        meta_url = m.groups()[0]
+                        return urljoin(url, to_unicode(meta_url, 'ignore'))
 
 
 def fix_market_url(url):
     """Преобразует market:// урлы в http://"""
-    return 'http://play.google.com/store/apps/' + url.lstrip("market://")
+    if isinstance(url, str):
+        return 'http://play.google.com/store/apps/' + url.lstrip("market://")
 
 
 def make_pycurl_request(url, timeout, useragent=None):
@@ -182,16 +186,15 @@ def get_redirect_history(url, timeout, max_redirects=30, user_agent=None):
 
 def prepare_url(url):
     """Нормализация урла"""
-    if url is None:
-        return url
-    scheme, netloc, path, qs, anchor, fragments = urlparse(
-        to_unicode(url),
-        allow_fragments=False
-    )
-    try:
-        netloc = netloc.encode('idna')
-    except UnicodeError:
-        pass
-    path = quote(to_str(path, 'ignore'), safe='/%+$!*\'(),')
-    qs = quote_plus(to_str(qs, 'ignore'), safe=':&%=+$!*\'(),')
-    return urlunparse((scheme, netloc, path, qs, anchor, fragments))
+    if isinstance(url, (str, buffer)):
+        scheme, netloc, path, qs, anchor, fragments = urlparse(
+            to_unicode(url),
+            allow_fragments=False
+        )
+        try:
+            netloc = netloc.encode('idna')
+        except UnicodeError:
+            pass
+        path = quote(to_str(path, 'ignore'), safe='/%+$!*\'(),')
+        qs = quote_plus(to_str(qs, 'ignore'), safe=':&%=+$!*\'(),')
+        return urlunparse((scheme, netloc, path, qs, anchor, fragments))
