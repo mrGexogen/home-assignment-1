@@ -11,6 +11,7 @@ from lib.utils import (check_network_status, create_pidfile, daemonize,
                        load_config_from_pyfile, parse_cmd_args, spawn_workers)
 from lib.worker import worker
 
+
 logger = logging.getLogger('redirect_checker')
 
 
