@@ -9,6 +9,7 @@ import signal
 import sys
 from logging.config import dictConfig
 from threading import current_thread
+from lib.utils import create_pidfile
 
 import gevent
 from gevent import Greenlet
@@ -279,12 +280,6 @@ def install_signal_handlers():
 
     for signum in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP, signal.SIGQUIT):
         gevent.signal(signum, stop_handler, signum)
-
-
-def create_pidfile(pidfile_path):
-    pid = str(os.getpid())
-    with open(pidfile_path, 'w') as f:
-        f.write(pid)
 
 
 def main(argv):
