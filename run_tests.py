@@ -14,6 +14,7 @@ from source.tests.test_redirect_checker import RedirectCheckerTestCase
 from source.tests.test_lib import LibTestCase
 from source.tests.test_utils import UtilsTestCase
 
+
 @contextmanager
 def mocked_connection():
     def _create_connection(*args, **kwargs):
