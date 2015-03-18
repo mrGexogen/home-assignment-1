@@ -1,10 +1,13 @@
+import urllib2
+
 __author__ = 'serg'
 
 import unittest
 
 import mock
 
-from ..lib.utils import daemonize, create_pidfile, load_config_from_pyfile, parse_cmd_args, get_tube
+from ..lib.utils import daemonize, create_pidfile, load_config_from_pyfile, parse_cmd_args, get_tube, spawn_workers, \
+    check_network_status
 
 
 class UtilsTestCase(unittest.TestCase):
@@ -96,6 +99,20 @@ class UtilsTestCase(unittest.TestCase):
             get_tube(host, port, space, name)
         m_tarantul.assert_called_once_with(host=host, port=port, space=space)
         m_queue.tube.assert_called_once_with(name)
+
+    def testSpawn(self):
+        p = mock.Mock()
+        with mock.patch('multiprocessing.Process', p):
+            spawn_workers(2, None, None, None)
+        self.assertEqual(2, p.call_count)
+
+    def testUrlCheck(self):
+        with mock.patch('urllib2.urlopen'):
+            self.assertTrue(check_network_status('ya.com', 1))
+
+    def testUrlCheckExcept(self):
+        with mock.patch('urllib2.urlopen', side_effect=urllib2.URLError('!')):
+            self.assertFalse(check_network_status('ya.com', 1))
 
 
 if __name__ == '__main__':
