@@ -3,22 +3,22 @@ from logging import getLogger
 import os.path
 
 from tarantool.error import DatabaseError
-from . import to_unicode, get_redirect_history
 
+import source
 from utils import get_tube
 
 logger = getLogger('redirect_checker')
 
 
 def get_redirect_history_from_task(task, timeout, max_redirects=30, user_agent=None):
-    url = to_unicode(task.data['url'], 'ignore')
+    url = source.lib.to_unicode(task.data['url'], 'ignore')
     is_recheck = bool(task.data.get('recheck'))
 
     logger.info(u'Task id={} url={} url_id={} is_recheck={}'.format(
         task.task_id, url, task.data["url_id"], is_recheck
     ))
 
-    history_types, history_urls, counters = get_redirect_history(
+    history_types, history_urls, counters = source.lib.get_redirect_history(
         url, timeout, max_redirects, user_agent
     )
     if 'ERROR' in history_types and not is_recheck:
@@ -39,7 +39,7 @@ def get_redirect_history_from_task(task, timeout, max_redirects=30, user_agent=N
 
 
 def worker(config, parent_pid):
-    input_tube = get_tube(
+    input_tube = source.lib.utils.get_tube(
         host=config.INPUT_QUEUE_HOST,
         port=config.INPUT_QUEUE_PORT,
         space=config.INPUT_QUEUE_SPACE,
@@ -52,7 +52,7 @@ def worker(config, parent_pid):
         name=input_tube.opt['tube']
     ))
 
-    output_tube = get_tube(
+    output_tube = source.lib.utils.get_tube(
         host=config.OUTPUT_QUEUE_HOST,
         port=config.OUTPUT_QUEUE_PORT,
         space=config.OUTPUT_QUEUE_SPACE,

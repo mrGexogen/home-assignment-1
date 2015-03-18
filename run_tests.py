@@ -13,6 +13,7 @@ from source.tests.test_notification_pusher import NotificationPusherTestCase
 from source.tests.test_redirect_checker import RedirectCheckerTestCase
 from source.tests.test_lib import LibTestCase
 from source.tests.test_utils import UtilsTestCase
+from source.tests.test_worker import WorkerTestCase
 
 
 @contextmanager
@@ -32,6 +33,7 @@ if __name__ == '__main__':
         unittest.makeSuite(RedirectCheckerTestCase),
         unittest.makeSuite(LibTestCase),
         unittest.makeSuite(UtilsTestCase),
+        unittest.makeSuite(WorkerTestCase),
     ))
     with mocked_connection():
         result = unittest.TextTestRunner().run(suite)

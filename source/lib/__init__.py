@@ -191,10 +191,7 @@ def prepare_url(url):
             to_unicode(url),
             allow_fragments=False
         )
-        try:
-            netloc = netloc.encode('idna')
-        except UnicodeError:
-            pass
+        netloc = netloc.encode('idna')
         path = quote(to_str(path, 'ignore'), safe='/%+$!*\'(),')
         qs = quote_plus(to_str(qs, 'ignore'), safe=':&%=+$!*\'(),')
         return urlunparse((scheme, netloc, path, qs, anchor, fragments))
