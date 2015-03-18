@@ -1,15 +1,15 @@
 #!/usr/bin/env python2.7
 # coding: utf-8
 import logging
+from logging.config import dictConfig
+import multiprocessing
 import os
 import sys
-from logging.config import dictConfig
-from multiprocessing import active_children
-from time import sleep
+import time
 
-from lib.utils import (check_network_status, create_pidfile, daemonize,
-                       load_config_from_pyfile, parse_cmd_args, spawn_workers)
+from lib.utils import (daemonize)
 from lib.worker import worker
+import source
 
 
 logger = logging.getLogger('redirect_checker')
@@ -22,13 +22,13 @@ def main_loop(config):
         ))
     parent_pid = os.getpid()
     while True:
-        if check_network_status(config.CHECK_URL, config.HTTP_TIMEOUT):
+        if source.lib.utils.check_network_status(config.CHECK_URL, config.HTTP_TIMEOUT):
             required_workers_count = config.WORKER_POOL_SIZE - len(
-                active_children())
+                multiprocessing.active_children())
             if required_workers_count > 0:
                 logger.info(
                     'Spawning {} workers'.format(required_workers_count))
-                spawn_workers(
+                source.lib.utils.spawn_workers(
                     num=required_workers_count,
                     target=worker,
                     args=(config,),
@@ -36,25 +36,25 @@ def main_loop(config):
                 )
         else:
             logger.critical('Network is down. stopping workers')
-            for c in active_children():
+            for c in multiprocessing.active_children():
                 c.terminate()
 
-        sleep(config.SLEEP)
+        time.sleep(config.SLEEP)
 
 
 def main(argv):
-    args = parse_cmd_args(argv[1:])
+    args = source.lib.utils.parse_cmd_args(argv[1:])
 
     if args.daemon:
         daemonize()
 
     if args.pidfile:
-        create_pidfile(args.pidfile)
+        source.lib.utils.create_pidfile(args.pidfile)
 
-    config = load_config_from_pyfile(
+    config = source.lib.utils.load_config_from_pyfile(
         os.path.realpath(os.path.expanduser(args.config))
     )
-    dictConfig(config.LOGGING)
+    logging.config.dictConfig(config.LOGGING)
     main_loop(config)
 
     return config.EXIT_CODE
