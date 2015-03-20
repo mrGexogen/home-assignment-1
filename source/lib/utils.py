@@ -57,7 +57,7 @@ def load_config_from_pyfile(filepath):
     for key, value in variables.iteritems():
         if key.isupper():
             setattr(cfg, key, value)
-
+    setattr(cfg, "run_application", True)
     return cfg
 
 

@@ -9,7 +9,7 @@ import signal
 import sys
 from logging.config import dictConfig
 from threading import current_thread
-from lib.utils import create_pidfile
+from lib.utils import create_pidfile, daemonize, load_config_from_pyfile
 
 import gevent
 from gevent import Greenlet
@@ -109,6 +109,20 @@ def stop_handler(signum):
 
     run_application = False
     exit_code = SIGNAL_EXIT_CODE_OFFSET + signum
+
+
+def set_run_application(flag):
+    """
+    Обработчик сигналов завершения приложения.
+
+    :param signum: номер сигнала
+    :type signum: int
+    """
+    global run_application
+
+
+    run_application = flag
+
 
 
 def main_loop(config):
@@ -218,58 +232,11 @@ def parse_cmd_args(args):
     return parser.parse_args(args=args)
 
 
-def daemonize():
-    """
-    Демонизирует текущий процесс.
-    """
-    try:
-        pid = os.fork()
-    except OSError as exc:
-        raise Exception("%s [%d]" % (exc.strerror, exc.errno))
-
-    if pid == 0:
-        os.setsid()
-
-        try:
-            pid = os.fork()
-        except OSError as exc:
-            raise Exception("%s [%d]" % (exc.strerror, exc.errno))
-
-        if pid > 0:
-            os._exit(0)
-    else:
-        os._exit(0)
-
-
 class Config(object):
     """
     Класс для хранения настроек приложения.
     """
     pass
-
-
-def load_config_from_pyfile(filepath):
-    """
-    Создает Config объект из py файла и загружает в него настройки.
-
-    Используются только camel-case переменные.
-
-    :param filepath: путь до py файла с настройками
-    :type filepath: basestring
-
-    :rtype: Config
-    """
-    cfg = Config()
-
-    variables = {}
-
-    execfile(filepath, variables)
-
-    for key, value in variables.iteritems():
-        if key.isupper():
-            setattr(cfg, key, value)
-
-    return cfg
 
 
 def install_signal_handlers():
