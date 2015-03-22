@@ -46,7 +46,7 @@ def get_counters(content):
     """
     counters = []
     for counter_name, regexp in COUNTER_TYPES:
-        if isinstance(content, (str, buffer)) and re.match(regexp, content):
+        if isinstance(content, (basestring, buffer)) and re.match(regexp, content):
             counters.append(counter_name)
     return counters
 
@@ -74,7 +74,7 @@ def check_for_meta(content, url):
 
 def fix_market_url(url):
     """Преобразует market:// урлы в http://"""
-    if isinstance(url, str):
+    if isinstance(url, basestring):
         return 'http://play.google.com/store/apps/' + url.lstrip("market://")
 
 
@@ -186,7 +186,7 @@ def get_redirect_history(url, timeout, max_redirects=30, user_agent=None):
 
 def prepare_url(url):
     """Нормализация урла"""
-    if isinstance(url, (str, buffer)):
+    if isinstance(url, (basestring, buffer)):
         scheme, netloc, path, qs, anchor, fragments = urlparse(
             to_unicode(url),
             allow_fragments=False
