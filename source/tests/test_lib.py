@@ -1,4 +1,3 @@
-# coding=utf-8
 import unittest
 
 import mock
@@ -9,24 +8,27 @@ import source.lib
 class LibTestCase(unittest.TestCase):
     def testUnicode(self):
         msg = u"Hello world"
-        self.assertTrue(isinstance(source.lib.to_unicode(msg), unicode))
+        self.assertIsInstance(source.lib.to_unicode(msg), unicode)
+        self.assertEqual(source.lib.to_unicode(msg), u"Hello world")
 
     def testNotUnicode(self):
         msg = "42 "
         msg.encode('utf-16')
-        self.assertFalse(isinstance(msg, unicode))
-        self.assertTrue(isinstance(source.lib.to_unicode(msg), unicode))
+        self.assertIsInstance(source.lib.to_unicode(msg), unicode)
+        self.assertEqual(source.lib.to_unicode(msg), u"42 ")
 
     def testNoneUnicode(self):
         self.assertIsNone(source.lib.to_unicode(None))
 
     def testToStrUnicode(self):
         msg = u"Hello world"
-        self.assertFalse(isinstance(source.lib.to_str(msg), unicode))
+        self.assertIsInstance(source.lib.to_str(msg), str)
+        self.assertEqual(source.lib.to_str(msg), "Hello world")
 
     def testToStrNotUnicode(self):
         msg = "Hello world"
         self.assertFalse(isinstance(source.lib.to_str(msg), unicode))
+        self.assertEqual(source.lib.to_str(msg), "Hello world")
 
     def testToStrNone(self):
         self.assertIsNone(source.lib.to_str(None))
