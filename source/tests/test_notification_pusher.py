@@ -19,8 +19,9 @@ class NotificationPusherTestCase(unittest.TestCase):
     def testDoneEmpty(self):
         queue = Queue()
         queue.qsize = mock.Mock(side_effect=[1, 0])
-        done_with_processed_tasks(queue)
-        self.assertRaises(gevent_queue.Empty)
+        with mock.patch('notification_pusher.getattr', mock.Mock(), create=True) as m:
+            done_with_processed_tasks(queue)
+            self.assertEqual(m.call_count, 0)
 
     def test_notification_worker(self):
         url = 'foo.ru'
