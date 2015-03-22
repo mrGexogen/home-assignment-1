@@ -46,7 +46,7 @@ def main(argv):
     args = source.lib.utils.parse_cmd_args(argv[1:])
 
     if args.daemon:
-        daemonize()
+        source.lib.utils.daemonize()
 
     if args.pidfile:
         source.lib.utils.create_pidfile(args.pidfile)
