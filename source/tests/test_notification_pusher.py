@@ -65,9 +65,9 @@ class NotificationPusherTestCase(unittest.TestCase):
         task = mock.Mock()
         task.ack = mock.Mock(side_effect=tarantool.DatabaseError)
         queue.put((task, 'ack'))
-        with mock.patch("notification_pusher.logger.exception", mock.Mock()):
+        with mock.patch("notification_pusher.logger.exception", mock.Mock()) as m:
             done_with_processed_tasks(queue)
-        self.assertRaises(tarantool.DatabaseError)
+            self.assertEqual(m.call_count, 1)
 
     def test_parse_cmd_args(self):
         conf = "conf.conf"

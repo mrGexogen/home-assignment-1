@@ -27,7 +27,7 @@ class LibTestCase(unittest.TestCase):
 
     def test_to_str_not_unicode(self):
         msg = "Hello world"
-        self.assertFalse(isinstance(source.lib.to_str(msg), unicode))
+        self.assertIsInstance(source.lib.to_str(msg), str)
         self.assertEqual(source.lib.to_str(msg), "Hello world")
 
     def test_to_str_none(self):
