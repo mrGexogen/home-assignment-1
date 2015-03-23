@@ -92,17 +92,17 @@ class UtilsTestCase(unittest.TestCase):
         m_tarantul.assert_called_once_with(host=host, port=port, space=space)
         m_queue.tube.assert_called_once_with(name)
 
-    def testSpawn(self):
+    def test_spawn(self):
         p = mock.Mock()
         with mock.patch('multiprocessing.Process', p):
             spawn_workers(2, None, None, None)
         self.assertEqual(2, p.call_count)
 
-    def testUrlCheck(self):
+    def test_url_check(self):
         with mock.patch('urllib2.urlopen'):
             self.assertTrue(check_network_status('ya.com', 1))
 
-    def testUrlCheckExcept(self):
+    def test_url_check_except(self):
         with mock.patch('urllib2.urlopen', side_effect=urllib2.URLError('!')):
             self.assertFalse(check_network_status('ya.com', 1))
 

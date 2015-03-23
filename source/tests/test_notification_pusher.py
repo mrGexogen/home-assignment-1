@@ -9,14 +9,14 @@ from ..notification_pusher import notification_worker, done_with_processed_tasks
 
 
 class NotificationPusherTestCase(unittest.TestCase):
-    def testDone(self):
+    def test_done(self):
         queue = Queue()
         task = mock.Mock()
         queue.put((task, 'ack'))
         done_with_processed_tasks(queue)
         self.assertEqual(queue.qsize(), 0)
 
-    def testDoneEmpty(self):
+    def test_done_empty(self):
         queue = Queue()
         queue.qsize = mock.Mock(side_effect=[1, 0])
         with mock.patch('notification_pusher.getattr', mock.Mock(), create=True) as m:

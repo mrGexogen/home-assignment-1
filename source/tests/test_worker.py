@@ -10,7 +10,7 @@ __author__ = 'gexogen'
 
 
 class WorkerTestCase(unittest.TestCase):
-    def testRedirect(self):
+    def test_redirect(self):
         m_data = {'url': 'ya1.ru', 'id': 1, 'url_id': 1}
 
         class task:
@@ -20,7 +20,7 @@ class WorkerTestCase(unittest.TestCase):
         with mock.patch('source.lib.get_redirect_history', return_value=([], ['ya1.ru'], [])):
             self.assertFalse(get_redirect_history_from_task(task(), 1)[0])
 
-    def testRedirectSuspicious(self):
+    def test_redirect_suspicious(self):
         m_data = {'url': 'ya1.ru', 'id': 1, 'url_id': 1, 'suspicious': True}
 
         class task:
@@ -30,7 +30,7 @@ class WorkerTestCase(unittest.TestCase):
         with mock.patch('source.lib.get_redirect_history', return_value=([], ['ya1.ru'], [])):
             self.assertIn('suspicious', get_redirect_history_from_task(task(), 1)[1])
 
-    def testRedirectError(self):
+    def test_redirect_error(self):
         m_data = {'url': 'ya1.ru', 'id': 1, 'url_id': 1, 'suspicious': True}
 
         class task:
@@ -40,7 +40,7 @@ class WorkerTestCase(unittest.TestCase):
         with mock.patch('source.lib.get_redirect_history', return_value=(['ERROR'], ['ya1.ru'], [])):
             self.assertTrue(get_redirect_history_from_task(task(), 1)[0])
 
-    def testWorker(self):
+    def test_worker(self):
         class task:
             task_id = 1
             ack = mock.Mock()
@@ -59,7 +59,7 @@ class WorkerTestCase(unittest.TestCase):
                     worker(mock.Mock(), 1)
         self.assertEqual(ex.call_count, 3)
 
-    def testWorkerExcept(self):
+    def test_worker_except(self):
         class task:
             task_id = 1
             ack = mock.Mock(side_effect=DatabaseError())
@@ -78,7 +78,7 @@ class WorkerTestCase(unittest.TestCase):
                     worker(mock.Mock(), 1)
         self.assertEqual(ex.call_count, 3)
 
-    def testWorkerNoinput(self):
+    def test_worker_noinput(self):
         class task:
             task_id = 1
             ack = mock.Mock()
@@ -97,7 +97,7 @@ class WorkerTestCase(unittest.TestCase):
                     worker(mock.Mock(), 1)
         self.assertEqual(ex.call_count, 3)
 
-    def testWorkerResult(self):
+    def test_worker_result(self):
         class task:
             task_id = 1
             ack = mock.Mock()

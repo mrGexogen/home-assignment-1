@@ -6,7 +6,7 @@ from source.redirect_checker import main, main_loop
 
 
 class RedirectCheckerTestCase(unittest.TestCase):
-    def testMain(self):
+    def test_main(self):
         class Args:
             daemon = False
             pidfile = False
