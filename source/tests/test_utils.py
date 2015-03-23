@@ -31,13 +31,9 @@ class UtilsTestCase(unittest.TestCase):
         m_os_exit.assert_called_once_with(0)
         m_os_setsid.assert_called_once_with()
 
-
     def test_daemonize_except_1(self):
         with mock.patch("os.fork", mock.Mock(side_effect=OSError)):
-            try:
-                daemonize()
-            except Exception as ex:
-                self.assertEqual(type(ex), TypeError)
+            self.assertRaises(TypeError, daemonize)
 
     def test_daemonize_except_2(self):
         pid_1 = 0
@@ -45,11 +41,7 @@ class UtilsTestCase(unittest.TestCase):
         m_os_setsid = mock.Mock()
         with mock.patch("os.fork", mock.Mock(side_effect=[0, OSError])):
             with mock.patch("os.setsid", m_os_setsid):
-                try:
-                    daemonize()
-                except Exception as ex:
-                    self.assertEqual(type(ex), TypeError)
-
+                self.assertRaises(TypeError, daemonize)
 
     def test_daemonize_0_below_0(self):
         pid_1 = 0
